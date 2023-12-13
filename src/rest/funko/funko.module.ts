@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { FunkoService } from './funko.service';
-import { FunkoController } from './funko.controller';
+import { Module } from '@nestjs/common'
+import { FunkoService } from './funko.service'
+import { FunkoController } from './funko.controller'
 
 @Module({
   controllers: [FunkoController],
