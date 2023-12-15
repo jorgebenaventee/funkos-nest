@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { FunkoService } from './funko.service'
 import { CreateFunkoDto } from './dto/create-funko.dto'
 import { UpdateFunkoDto } from './dto/update-funko.dto'
@@ -30,7 +22,7 @@ export class FunkoController {
     return this.funkoService.findOne(+id)
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateFunkoDto: UpdateFunkoDto) {
     return this.funkoService.update(+id, updateFunkoDto)
   }
