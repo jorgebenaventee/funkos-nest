@@ -15,7 +15,7 @@ import { ConfigModule } from '@nestjs/config'
       port: Number(process.env.POSTGRES_PORT) || 5432,
       username: process.env.POSTGRES_USER ?? 'funko',
       password: process.env.POSTGRES_PASSWORD ?? 'funko',
-      database: 'funko',
+      database: process.env.POSTGRES_DB ?? 'funko',
       entities: [`${__dirname}/**/*.entity.{js,ts}`],
       synchronize: true,
     }),
