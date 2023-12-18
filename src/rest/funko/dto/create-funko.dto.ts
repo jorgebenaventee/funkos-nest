@@ -1,4 +1,5 @@
-import { CATEGORIES, Funko } from '@/rest/funko/entities/funko.entity'
+import type { Funko } from '@/rest/funko/entities/funko.entity'
+import { CATEGORIES } from '@/rest/funko/entities/funko.entity'
 import { IsIn, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 const validCategories = Object.values(CATEGORIES)

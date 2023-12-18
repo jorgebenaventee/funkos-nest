@@ -24,7 +24,11 @@ module.exports = {
     'prefer-const': 'error',
     'prefer-template': 'error',
     'prefer-arrow-callback': 'error',
-    'semi': 'off',
+    semi: 'off',
     'no-var': 'error',
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
+      { prefer: 'type-imports' },
+    ],
   },
-};
+}
