@@ -1,15 +1,20 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
-import { CreateFunkoDto } from './dto/create-funko.dto'
-import { UpdateFunkoDto } from './dto/update-funko.dto'
+import type { CreateFunkoDto } from './dto/create-funko.dto'
+import type { UpdateFunkoDto } from './dto/update-funko.dto'
 import { Funko } from './entities/funko.entity'
 import { FunkoMapper } from '@/rest/funko/funko-mapper/funko-mapper'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class FunkoService {
   private funkos: Funko[]
   private readonly logger = new Logger(FunkoService.name)
 
-  constructor(private readonly funkoMapper: FunkoMapper) {
+  constructor(
+    private readonly funkoMapper: FunkoMapper,
+    @InjectRepository(Funko) private funkoRepository: Repository<Funko>,
+  ) {
     const funko = new Funko()
     funko.name = 'Mickey Mouse'
     funko.price = 10

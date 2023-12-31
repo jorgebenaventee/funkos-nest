@@ -5,6 +5,8 @@ import { FunkoModule } from './rest/funko/funko.module'
 import { CategoryModule } from './rest/category/category.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule } from '@nestjs/config'
+import { Funko } from '@/rest/funko/entities/funko.entity'
+import { Category } from '@/rest/category/entities/category.entity'
 
 @Module({
   imports: [
@@ -16,8 +18,8 @@ import { ConfigModule } from '@nestjs/config'
       username: process.env.POSTGRES_USER ?? 'funko',
       password: process.env.POSTGRES_PASSWORD ?? 'funko',
       database: process.env.POSTGRES_DB ?? 'funko',
-      entities: [`${__dirname}/**/*.entity.{js,ts}`],
       synchronize: true,
+      entities: [Funko, Category],
     }),
     FunkoModule,
     CategoryModule,
