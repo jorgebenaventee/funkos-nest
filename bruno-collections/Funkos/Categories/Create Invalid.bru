@@ -1,0 +1,17 @@
+meta {
+  name: Create Invalid
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/category
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": null
+  }
+}

@@ -1,0 +1,17 @@
+meta {
+  name: Update Invalid
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:3000/api/category/aaadc602-5f53-4b0d-9fc2-1bcb5ace8bf7
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": null
+  }
+}
