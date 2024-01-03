@@ -86,13 +86,13 @@ export class FunkoService {
       }
       updatedFunko.category = category
     }
-    return updatedFunko
+    return this.funkoMapper.toResponse(updatedFunko)
   }
 
   async remove(id: number) {
     this.logger.log(`Removing funko with id ${id}`)
     const funko = await this.findOneInternal(id)
-    return await this.funkoRepository.remove([funko])
+    const funkos = await this.funkoRepository.remove([funko])
   }
 
   private throwNotFound(id: Funko['id']) {

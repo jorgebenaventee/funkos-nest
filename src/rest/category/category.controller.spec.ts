@@ -1,3 +1,4 @@
+import { CategoryMapper } from '@/rest/category/category-mapper/category-mapper'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { CategoryController } from './category.controller'
@@ -9,7 +10,7 @@ describe('CategoryController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CategoryController],
-      providers: [CategoryService],
+      providers: [CategoryService, CategoryMapper],
     }).compile()
 
     controller = module.get<CategoryController>(CategoryController)
