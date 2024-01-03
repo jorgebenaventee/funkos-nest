@@ -1,3 +1,4 @@
+import { Category } from '@/rest/category/entities/category.entity'
 import { Module } from '@nestjs/common'
 import { FunkoService } from './funko.service'
 import { FunkoController } from './funko.controller'
@@ -6,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Funko } from '@/rest/funko/entities/funko.entity'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Funko])],
+  imports: [TypeOrmModule.forFeature([Funko, Category])],
   controllers: [FunkoController],
   providers: [FunkoService, FunkoMapper],
 })

@@ -1,0 +1,20 @@
+meta {
+  name: Create Invalid
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/funko
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "",
+    "price": 2.0233,
+    "stock": 2.22,
+    "categoryName": ""
+  }
+}

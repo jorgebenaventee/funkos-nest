@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { Category } from '@/rest/category/entities/category.entity'
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import type { CreateFunkoDto } from './dto/create-funko.dto'
 import type { UpdateFunkoDto } from './dto/update-funko.dto'
 import { Funko } from './entities/funko.entity'
@@ -8,81 +14,98 @@ import { Repository } from 'typeorm'
 
 @Injectable()
 export class FunkoService {
-  private funkos: Funko[]
   private readonly logger = new Logger(FunkoService.name)
 
   constructor(
     private readonly funkoMapper: FunkoMapper,
-    @InjectRepository(Funko) private funkoRepository: Repository<Funko>,
-  ) {
-    const funko = new Funko()
-    funko.name = 'Mickey Mouse'
-    funko.price = 10
-    funko.stock = 10
-    funko.category = 'Disney'
-    funko.image = 'https://i.imgur.com/1oo1WfE.jpeg'
+    @InjectRepository(Funko)
+    private readonly funkoRepository: Repository<Funko>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+  ) {}
 
-    const funko2 = new Funko()
-    funko2.name = 'Minnie Mouse'
-    funko2.price = 10
-    funko2.stock = 10
-    funko2.category = 'Disney'
-    funko2.image = 'https://i.imgur.com/1oo1WfE.jpeg'
-
-    this.funkos = [funko, funko2]
-  }
-
-  create(createFunkoDto: CreateFunkoDto) {
+  async create(createFunkoDto: CreateFunkoDto) {
     this.logger.log(`Creating funko ${JSON.stringify(createFunkoDto)}`)
+    const funkoAlreadyExists = await this.funkoRepository.exist({
+      where: { name: createFunkoDto.name },
+    })
+    if (funkoAlreadyExists) {
+      throw new ConflictException(`Funko ${createFunkoDto.name} already exists`)
+    }
     const funko = this.funkoMapper.fromCreate(createFunkoDto)
-    this.funkos.push(funko)
-    return funko
+    const category = await this.categoryRepository.findOne({
+      where: { name: createFunkoDto.categoryName },
+    })
+    if (!category) {
+      throw new NotFoundException(
+        `Category ${createFunkoDto.categoryName} not found`,
+      )
+    }
+    funko.category = category
+    const createdFunko = await this.funkoRepository.save(funko)
+    return this.funkoMapper.toResponse(createdFunko)
   }
 
-  findAll() {
+  async findAll() {
     this.logger.log(`Finding all funkos`)
-    return this.funkos
+    const funkos = await this.funkoRepository.find()
+    return funkos.map((funko) => this.funkoMapper.toResponse(funko))
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     this.logger.log(`Finding funko with id ${id}`)
-    return (
-      this.funkos.find((funko) => funko.id === id) ?? this.throwNotFound(id)
-    )
+    const funko = await this.findOneInternal(id)
+    return this.funkoMapper.toResponse(funko)
   }
 
-  update(id: number, updateFunkoDto: UpdateFunkoDto) {
+  async update(id: number, updateFunkoDto: UpdateFunkoDto) {
     this.logger.log(`Updating funko with id ${id}`)
-    const existingFunko = this.funkos.find((funko) => funko.id === id)
-    if (!existingFunko) {
-      this.throwNotFound(id)
+    const existingFunko = await this.findOneInternal(id)
+    if (updateFunkoDto.name != null) {
+      const funkoAlreadyExists = await this.funkoRepository.exist({
+        where: { name: updateFunkoDto.name },
+      })
+      if (funkoAlreadyExists) {
+        throw new ConflictException(
+          `Funko ${updateFunkoDto.name} already exists`,
+        )
+      }
     }
     const updatedFunko = this.funkoMapper.fromUpdate(
       updateFunkoDto,
       existingFunko,
     )
-
-    this.funkos = this.funkos.map((funko) =>
-      funko.id === id ? updatedFunko : funko,
-    )
-
+    if (updateFunkoDto.categoryName != null) {
+      const category = await this.categoryRepository.findOne({
+        where: { name: updateFunkoDto.categoryName },
+      })
+      if (!category) {
+        throw new NotFoundException(
+          `Category ${updateFunkoDto.categoryName} not found`,
+        )
+      }
+      updatedFunko.category = category
+    }
     return updatedFunko
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     this.logger.log(`Removing funko with id ${id}`)
-    const existingFunko = this.funkos.find((funko) => funko.id === id)
-    if (!existingFunko) {
-      this.throwNotFound(id)
-    }
-
-    this.funkos = this.funkos.filter((funko) => funko.id !== id)
-
-    return existingFunko
+    const funko = await this.findOneInternal(id)
+    return await this.funkoRepository.remove([funko])
   }
 
   private throwNotFound(id: Funko['id']) {
     this.logger.error(`Funko with id ${id} not found`)
     throw new NotFoundException(`Funko with id ${id} not found`)
+  }
+
+  private async findOneInternal(id: number) {
+    this.logger.log(`Finding funko with id ${id}`)
+    const funko = await this.funkoRepository.findOne({ where: { id } })
+    if (!funko) {
+      this.throwNotFound(id)
+    }
+    return funko
   }
 }

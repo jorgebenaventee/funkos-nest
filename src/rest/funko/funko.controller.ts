@@ -8,27 +8,30 @@ export class FunkoController {
   constructor(private readonly funkoService: FunkoService) {}
 
   @Post()
-  create(@Body() createFunkoDto: CreateFunkoDto) {
-    return this.funkoService.create(createFunkoDto)
+  async create(@Body() createFunkoDto: CreateFunkoDto) {
+    return await this.funkoService.create(createFunkoDto)
   }
 
   @Get()
-  findAll() {
-    return this.funkoService.findAll()
+  async findAll() {
+    return await this.funkoService.findAll()
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.funkoService.findOne(+id)
+  async findOne(@Param('id') id: string) {
+    return await this.funkoService.findOne(+id)
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateFunkoDto: UpdateFunkoDto) {
-    return this.funkoService.update(+id, updateFunkoDto)
+  async update(
+    @Param('id') id: string,
+    @Body() updateFunkoDto: UpdateFunkoDto,
+  ) {
+    return await this.funkoService.update(+id, updateFunkoDto)
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.funkoService.remove(+id)
+  async remove(@Param('id') id: string) {
+    return await this.funkoService.remove(+id)
   }
 }

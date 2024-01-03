@@ -1,0 +1,20 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/funko
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Funko",
+    "price": 2.02,
+    "stock": 2,
+    "categoryName": "test"
+  }
+}

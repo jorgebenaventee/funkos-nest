@@ -1,16 +1,17 @@
+import { Category } from '@/rest/category/entities/category.entity'
 import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryColumn,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 
-let id = 1
-
 @Entity('funkos')
 export class Funko {
-  @PrimaryColumn('int')
+  @PrimaryGeneratedColumn()
   id: number
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   name: string
@@ -18,23 +19,16 @@ export class Funko {
   price: number
   @Column({ type: 'int', nullable: false })
   stock: number
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  category: (typeof CATEGORIES)[keyof typeof CATEGORIES]
+  @ManyToOne(() => Category, (object) => object.funkos, {
+    nullable: false,
+    eager: true,
+  })
+  @JoinColumn({ name: 'category_id' })
+  category: Category
   @Column({ type: 'varchar', length: 255, nullable: false })
   image: string
   @UpdateDateColumn()
   updatedAt: Date
   @CreateDateColumn()
   createdAt: Date
-
-  constructor() {
-    this.id = id++
-  }
 }
-
-export const CATEGORIES = {
-  DISNEY: 'Disney',
-  OTHERS: 'Others',
-  MARVEL: 'Marvel',
-  DC: 'DC',
-} as const

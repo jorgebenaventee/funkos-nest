@@ -1,0 +1,17 @@
+meta {
+  name: Update Invalid
+  type: http
+  seq: 6
+}
+
+put {
+  url: http://localhost:3000/api/funko/4
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": ""
+  }
+}

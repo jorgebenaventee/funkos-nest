@@ -1,8 +1,4 @@
-import type { Funko } from '@/rest/funko/entities/funko.entity'
-import { CATEGORIES } from '@/rest/funko/entities/funko.entity'
-import { IsIn, IsNotEmpty, IsNumber, IsString } from 'class-validator'
-
-const validCategories = Object.values(CATEGORIES)
+import { IsInt, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 export class CreateFunkoDto {
   @IsString({ message: 'Name must be a string' })
@@ -11,11 +7,10 @@ export class CreateFunkoDto {
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Price must be a number' })
   @IsNotEmpty({ message: 'Price is required' })
   price: number
-  @IsNumber({}, { message: 'Stock must be a number' })
+  @IsInt({ message: 'Stock must be an integer' })
   @IsNotEmpty({ message: 'Stock is required' })
   stock: number
-  @IsIn(validCategories, {
-    message: `Category must be ${validCategories.join(', ')}`,
-  })
-  category: Funko['category']
+  @IsString({ message: 'Category name must be a string' })
+  @IsNotEmpty({ message: 'Category name is required' })
+  categoryName: string
 }
