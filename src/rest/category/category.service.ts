@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
@@ -23,7 +24,7 @@ export class CategoryService {
       where: { name: createCategoryDto.name },
     })
     if (existingCategory) {
-      throw new BadRequestException(
+      throw new ConflictException(
         `Category with name ${createCategoryDto.name} already exists`,
       )
     }
@@ -74,7 +75,7 @@ export class CategoryService {
   async restore(id: string) {
     const category = await this.findOneInternal(id)
     if (category) {
-      throw new BadRequestException(`Category with id ${id} is not deleted`)
+      throw new ConflictException(`Category with id ${id} is not deleted`)
     }
     await this.categoryRepository.restore(id)
   }

@@ -1,6 +1,6 @@
 import { categoryResponseDto, createCategoryDto } from '@/mocks'
 import { createMockedService } from '@/utils'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { CategoryController } from './category.controller'
@@ -39,10 +39,10 @@ describe('CategoryController', () => {
     })
 
     it('should throw an error when the category already exists', () => {
-      jest.spyOn(service, 'create').mockRejectedValue(new BadRequestException())
+      jest.spyOn(service, 'create').mockRejectedValue(new ConflictException())
 
       expect(controller.create(createCategoryDto)).rejects.toThrow(
-        BadRequestException,
+        ConflictException,
       )
     })
   })
@@ -111,10 +111,8 @@ describe('CategoryController', () => {
     })
 
     it('should throw an error when the category is not deleted', () => {
-      jest
-        .spyOn(service, 'restore')
-        .mockRejectedValue(new BadRequestException())
-      expect(controller.restore('1')).rejects.toThrow(BadRequestException)
+      jest.spyOn(service, 'restore').mockRejectedValue(new ConflictException())
+      expect(controller.restore('1')).rejects.toThrow(ConflictException)
     })
   })
 })
