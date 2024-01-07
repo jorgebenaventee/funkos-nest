@@ -16,14 +16,14 @@ function makeModuleNameMapper(srcPath, tsconfigPath) {
 const TS_CONFIG_PATH = './tsconfig.json'
 const SRC_PATH = '<rootDir>'
 module.exports = {
+  collectCoverageFrom: ['src/**/*.ts'],
   moduleFileExtensions: ['js', 'json', 'ts'],
   // rootDir: 'src',
   testRegex: '.*\\.spec\\.ts$',
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['**/*.(t|j)s'],
-  coverageDirectory: '../coverage',
+  coverageDirectory: 'coverage',
   testEnvironment: 'node',
   roots: [SRC_PATH],
   moduleNameMapper: makeModuleNameMapper(SRC_PATH, TS_CONFIG_PATH),

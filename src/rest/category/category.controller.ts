@@ -6,7 +6,6 @@ import {
   HttpCode,
   Param,
   ParseUUIDPipe,
-  Patch,
   Post,
   Put,
 } from '@nestjs/common'
@@ -19,20 +18,20 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto)
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    return await this.categoryService.create(createCategoryDto)
   }
 
   @Get()
-  findAll() {
-    return this.categoryService.findAll()
+  async findAll() {
+    return await this.categoryService.findAll()
   }
 
   @Get(':id')
-  findOne(
+  async findOne(
     @Param('id', new ParseUUIDPipe({ errorHttpStatusCode: 400 })) id: string,
   ) {
-    return this.categoryService.findOne(id)
+    return await this.categoryService.findOne(id)
   }
 
   @Put(':id')

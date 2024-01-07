@@ -3,6 +3,7 @@
 /node_modules
 pnpm-lock.yaml
 bun.lockb
+coverage
 
 # Logs
 logs
