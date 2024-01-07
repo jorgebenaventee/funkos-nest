@@ -50,10 +50,6 @@ export class CategoryService {
     return this.categoryMapper.fromEntityToResponseDto(category)
   }
 
-  private findOneInternal(id: string) {
-    return this.categoryRepository.findOne({ where: { id } })
-  }
-
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     const category = await this.findOneInternal(id)
     if (!category) {
@@ -81,5 +77,9 @@ export class CategoryService {
       throw new BadRequestException(`Category with id ${id} is not deleted`)
     }
     await this.categoryRepository.restore(id)
+  }
+
+  private async findOneInternal(id: string) {
+    return await this.categoryRepository.findOne({ where: { id } })
   }
 }
