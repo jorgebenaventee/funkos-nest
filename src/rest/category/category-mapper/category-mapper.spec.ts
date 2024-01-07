@@ -19,25 +19,43 @@ describe('CategoryMapper', () => {
     expect(provider).toBeDefined()
   })
 
-  it('should map create category dto to category entity', () => {
-    const result = provider.fromCreateToEntity({
-      name: 'name',
-    })
+  describe('fromCreateToEntity', () => {
+    it('should map create category dto to category entity', () => {
+      const result = provider.fromCreateToEntity({
+        name: 'name',
+      })
 
-    expect(result.name).toBe('name')
+      expect(result.name).toBe('name')
+    })
   })
 
-  it('should map update category dto to category entity', () => {
-    const category: Category = {
-      name: 'name',
-      funkos: [],
-      deletedAt: null,
-      id: crypto.randomUUID(),
-    }
-    const result = provider.fromUpdateToEntity(category, {
-      name: 'updated name',
-    })
+  describe('fromUpdateToEntity', () => {
+    it('should map update category dto to category entity', () => {
+      const category: Category = {
+        name: 'name',
+        funkos: [],
+        deletedAt: null,
+        id: crypto.randomUUID(),
+      }
+      const result = provider.fromUpdateToEntity(category, {
+        name: 'updated name',
+      })
 
-    expect(result.name).toBe('updated name')
+      expect(result.name).toBe('updated name')
+    })
+  })
+
+  describe('fromEntityToResponseDto', () => {
+    it('should map category entity to category response dto', () => {
+      const category: Category = {
+        name: 'name',
+        funkos: [],
+        deletedAt: null,
+        id: crypto.randomUUID(),
+      }
+      const result = provider.fromEntityToResponseDto(category)
+
+      expect(result.name).toBe('name')
+    })
   })
 })
