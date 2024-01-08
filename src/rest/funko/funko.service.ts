@@ -92,7 +92,7 @@ export class FunkoService {
   async remove(id: number) {
     this.logger.log(`Removing funko with id ${id}`)
     const funko = await this.findOneInternal(id)
-    const funkos = await this.funkoRepository.remove([funko])
+    const _ = await this.funkoRepository.remove([funko])
   }
 
   private throwNotFound(id: Funko['id']) {
