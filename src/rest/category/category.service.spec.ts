@@ -7,7 +7,11 @@ import {
 import { CategoryMapper } from '@/rest/category/category-mapper/category-mapper'
 import { Category } from '@/rest/category/entities/category.entity'
 import { createMockedService } from '@/utils'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
@@ -63,7 +67,7 @@ describe('CategoryService', () => {
     it('should throw an error if the category already exists', () => {
       jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(category)
       expect(service.create(createCategoryDto)).rejects.toThrow(
-        BadRequestException,
+        ConflictException,
       )
     })
   })
@@ -136,7 +140,7 @@ describe('CategoryService', () => {
 
     it('should throw an error if the category is not deleted', () => {
       jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(category)
-      expect(service.restore('1')).rejects.toThrow(BadRequestException)
+      expect(service.restore('1')).rejects.toThrow(ConflictException)
     })
   })
 })
