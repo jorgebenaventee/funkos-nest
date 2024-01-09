@@ -36,8 +36,7 @@ export class NotificationsGateway
     event: (typeof SOCKET_KEYS)[keyof typeof SOCKET_KEYS],
     message: FunkoResponseDto | CategoryResponseDto,
   ) {
-    const eventKey =
-      SOCKET_KEYS[event] + this.isFunko(message) ? 'funko' : 'category'
+    const eventKey = `${event}_${this.isFunko(message) ? 'funko' : 'category'}`
     this.server.emit(eventKey, message)
   }
 
