@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule } from '@nestjs/config'
 import { Funko } from '@/rest/funko/entities/funko.entity'
 import { Category } from '@/rest/category/entities/category.entity'
+import { NotificationsModule } from '@/rest/notifications/notifications.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { Category } from '@/rest/category/entities/category.entity'
     }),
     FunkoModule,
     CategoryModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
