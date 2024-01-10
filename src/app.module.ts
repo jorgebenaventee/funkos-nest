@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -11,6 +12,7 @@ import { NotificationsModule } from '@/rest/notifications/notifications.module'
 
 @Module({
   imports: [
+    CacheModule.register(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',

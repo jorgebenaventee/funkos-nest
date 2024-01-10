@@ -1,9 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import { CacheInterceptor } from '@nestjs/cache-manager'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseInterceptors,
+} from '@nestjs/common'
 import { FunkoService } from './funko.service'
 import { CreateFunkoDto } from './dto/create-funko.dto'
 import { UpdateFunkoDto } from './dto/update-funko.dto'
 
 @Controller('funko')
+@UseInterceptors(CacheInterceptor)
 export class FunkoController {
   constructor(private readonly funkoService: FunkoService) {}
 

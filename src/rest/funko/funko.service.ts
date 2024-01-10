@@ -5,8 +5,10 @@ import {
   NotificationsGateway,
   type WebSocketKey,
 } from '@/rest/notifications/notifications.gateway'
+import { type Cache, CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -16,6 +18,9 @@ import { Repository } from 'typeorm'
 import type { CreateFunkoDto } from './dto/create-funko.dto'
 import type { UpdateFunkoDto } from './dto/update-funko.dto'
 import { Funko } from './entities/funko.entity'
+
+const generateFunkoCacheKey = (id: number) => `funko_${id}` as const
+const allFunkosKey = 'all_funkos'
 
 @Injectable()
 export class FunkoService {
@@ -28,6 +33,7 @@ export class FunkoService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly notificationsGateway: NotificationsGateway,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   async create(createFunkoDto: CreateFunkoDto) {
@@ -49,6 +55,7 @@ export class FunkoService {
     }
     funko.category = category
     const createdFunko = await this.funkoRepository.save(funko)
+    await this.addToCache(createdFunko)
     const response = this.funkoMapper.toResponse(createdFunko)
     this.onChange('create', response)
     return response
@@ -56,6 +63,10 @@ export class FunkoService {
 
   async findAll() {
     this.logger.log(`Finding all funkos`)
+    const cachedFunkos = await this.getFromCache()
+    if (cachedFunkos) {
+      return cachedFunkos.map((funko) => this.funkoMapper.toResponse(funko))
+    }
     const funkos = await this.funkoRepository.find()
     return funkos.map((funko) => this.funkoMapper.toResponse(funko))
   }
@@ -94,7 +105,9 @@ export class FunkoService {
       }
       updatedFunko.category = category
     }
-    const funkoResponseDto = this.funkoMapper.toResponse(updatedFunko)
+    const dbUpdatedFunko = await this.funkoRepository.save(updatedFunko)
+    await this.addToCache(dbUpdatedFunko)
+    const funkoResponseDto = this.funkoMapper.toResponse(dbUpdatedFunko)
     this.onChange('update', funkoResponseDto)
     return funkoResponseDto
   }
@@ -104,6 +117,7 @@ export class FunkoService {
     const funko = await this.findOneInternal(id)
     const _ = await this.funkoRepository.remove([funko])
     this.onChange('delete', this.funkoMapper.toResponse(funko))
+    await this.removeFromCache(id)
   }
 
   private throwNotFound(id: Funko['id']) {
@@ -113,11 +127,46 @@ export class FunkoService {
 
   private async findOneInternal(id: number) {
     this.logger.log(`Finding funko with id ${id}`)
-    const funko = await this.funkoRepository.findOne({ where: { id } })
+    let funko = await this.getFromCache(id)
     if (!funko) {
-      this.throwNotFound(id)
+      funko = await this.funkoRepository.findOne({ where: { id } })
+      if (funko) {
+        await this.addToCache(funko)
+      } else {
+        this.throwNotFound(id)
+      }
     }
     return funko
+  }
+
+  private addToCache(item: Funko | Funko[]) {
+    if (Array.isArray(item)) {
+      this.logger.log(`Adding all funkos to cache`)
+      return this.cacheManager.set(allFunkosKey, item)
+    } else {
+      this.logger.log(`Adding funko with id ${item.id} to cache`)
+      const key = generateFunkoCacheKey(item.id)
+      return this.cacheManager.set(key, item)
+    }
+  }
+
+  private getFromCache(): Promise<Funko[] | undefined>
+  private getFromCache(id: number): Promise<Funko | undefined>
+  private getFromCache(id?: number) {
+    if (id) {
+      this.logger.log(`Getting funko with id ${id} from cache`)
+      const key = generateFunkoCacheKey(id)
+      return this.cacheManager.get<Funko>(key)
+    } else {
+      this.logger.log(`Getting all funkos from cache`)
+      return this.cacheManager.get<Funko[]>(allFunkosKey)
+    }
+  }
+
+  private removeFromCache(id: number) {
+    this.logger.log(`Removing funko with id ${id} from cache`)
+    const key = generateFunkoCacheKey(id)
+    return this.cacheManager.del(key)
   }
 
   private onChange(type: WebSocketKey, message: FunkoResponseDto) {
