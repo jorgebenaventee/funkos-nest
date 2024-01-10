@@ -9,6 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
+export const defaultImage = 'https://placehold.co/600x400' as const
+
 @Entity('funkos')
 export class Funko {
   @PrimaryGeneratedColumn()

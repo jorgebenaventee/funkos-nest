@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config'
 import { Funko } from '@/rest/funko/entities/funko.entity'
 import { Category } from '@/rest/category/entities/category.entity'
 import { NotificationsModule } from '@/rest/notifications/notifications.module'
+import { StorageModule } from './rest/storage/storage.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { NotificationsModule } from '@/rest/notifications/notifications.module'
     FunkoModule,
     CategoryModule,
     NotificationsModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

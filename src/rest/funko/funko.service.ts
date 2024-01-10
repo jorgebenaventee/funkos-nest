@@ -5,8 +5,10 @@ import {
   NotificationsGateway,
   type WebSocketKey,
 } from '@/rest/notifications/notifications.gateway'
+import { StorageService } from '@/rest/storage/storage.service'
 import { type Cache, CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -14,10 +16,12 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { join } from 'node:path'
+import * as process from 'process'
 import { Repository } from 'typeorm'
 import type { CreateFunkoDto } from './dto/create-funko.dto'
 import type { UpdateFunkoDto } from './dto/update-funko.dto'
-import { Funko } from './entities/funko.entity'
+import { defaultImage, Funko } from './entities/funko.entity'
 
 const generateFunkoCacheKey = (id: number) => `funko_${id}` as const
 const allFunkosKey = 'all_funkos'
@@ -34,6 +38,7 @@ export class FunkoService {
     private readonly categoryRepository: Repository<Category>,
     private readonly notificationsGateway: NotificationsGateway,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly storageService: StorageService,
   ) {}
 
   async create(createFunkoDto: CreateFunkoDto) {
@@ -115,9 +120,46 @@ export class FunkoService {
   async remove(id: number) {
     this.logger.log(`Removing funko with id ${id}`)
     const funko = await this.findOneInternal(id)
+    if (funko.image !== defaultImage) {
+      try {
+        await this.storageService.removeImage({ image: funko.image })
+      } catch (e) {
+        this.logger.error(`Error removing image ${funko.image}: ${e}`)
+      }
+    }
     const _ = await this.funkoRepository.remove([funko])
     this.onChange('delete', this.funkoMapper.toResponse(funko))
     await this.removeFromCache(id)
+  }
+
+  async findImage(id: number) {
+    const { image } = await this.findOneInternal(id)
+    try {
+      return await this.storageService.findImage({ image })
+    } catch {
+      this.throwNotFound(id)
+    }
+  }
+
+  async updateImage(id: number, file: Express.Multer.File) {
+    const funko = await this.findOneInternal(id)
+    if (!file) {
+      throw new BadRequestException('No file provided')
+    }
+    if (funko.image !== defaultImage) {
+      try {
+        await this.storageService.removeImage({ image: funko.image })
+      } catch (e) {
+        this.logger.error(`Error removing image ${funko.image}: ${e}`)
+      }
+    }
+
+    funko.image = file.filename
+    const updatedFunko = await this.funkoRepository.save(funko)
+    await this.addToCache(updatedFunko)
+    const funkoResponseDto = this.funkoMapper.toResponse(updatedFunko)
+    this.onChange('update', funkoResponseDto)
+    return funkoResponseDto
   }
 
   private throwNotFound(id: Funko['id']) {
