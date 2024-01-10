@@ -65,11 +65,7 @@ export class FunkoController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: process.env.UPLOADS_DIR ?? 'uploads',
-        filename: (
-          req: e.Request,
-          file: Express.Multer.File,
-          callback: (error: Error | null, filename: string) => void,
-        ) => {
+        filename: (req, file, callback) => {
           const uniqueName = `${Date.now()}-${file.originalname}`
           const fileExtension = uniqueName.split('.').pop()
           const filename = `${uniqueName}.${fileExtension}`
