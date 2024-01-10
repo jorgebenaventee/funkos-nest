@@ -1,3 +1,8 @@
+import type { CategoryResponseDto } from '@/rest/category/dto/category-response.dto'
+import {
+  NotificationsGateway,
+  type WebSocketKey,
+} from '@/rest/notifications/notifications.gateway'
 import {
   BadRequestException,
   ConflictException,
@@ -17,6 +22,7 @@ export class CategoryService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly categoryMapper: CategoryMapper,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
@@ -30,7 +36,9 @@ export class CategoryService {
     }
     const category = this.categoryMapper.fromCreateToEntity(createCategoryDto)
     const savedCategory = await this.categoryRepository.save(category)
-    return this.categoryMapper.fromEntityToResponseDto(savedCategory)
+    const response = this.categoryMapper.fromEntityToResponseDto(savedCategory)
+    this.onChange('create', response)
+    return response
   }
 
   async findAll() {
@@ -61,7 +69,9 @@ export class CategoryService {
       updateCategoryDto,
     )
     const savedCategory = await this.categoryRepository.save(updatedCategory)
-    return this.categoryMapper.fromEntityToResponseDto(savedCategory)
+    const response = this.categoryMapper.fromEntityToResponseDto(savedCategory)
+    this.onChange('update', response)
+    return response
   }
 
   async remove(id: string) {
@@ -70,6 +80,10 @@ export class CategoryService {
       throw new NotFoundException(`Category with id ${id} not found`)
     }
     await this.categoryRepository.softDelete(id)
+    this.onChange(
+      'delete',
+      this.categoryMapper.fromEntityToResponseDto(category),
+    )
   }
 
   async restore(id: string) {
@@ -82,5 +96,9 @@ export class CategoryService {
 
   private async findOneInternal(id: string) {
     return await this.categoryRepository.findOne({ where: { id } })
+  }
+
+  private onChange(event: WebSocketKey, data: CategoryResponseDto) {
+    this.notificationsGateway.sendMessage(event, data)
   }
 }

@@ -1,16 +1,21 @@
 import { Category } from '@/rest/category/entities/category.entity'
+import type { FunkoResponseDto } from '@/rest/funko/dto/funko-response.dto'
+import { FunkoMapper } from '@/rest/funko/funko-mapper/funko-mapper'
+import {
+  NotificationsGateway,
+  type WebSocketKey,
+} from '@/rest/notifications/notifications.gateway'
 import {
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 import type { CreateFunkoDto } from './dto/create-funko.dto'
 import type { UpdateFunkoDto } from './dto/update-funko.dto'
 import { Funko } from './entities/funko.entity'
-import { FunkoMapper } from '@/rest/funko/funko-mapper/funko-mapper'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
 
 @Injectable()
 export class FunkoService {
@@ -22,6 +27,7 @@ export class FunkoService {
     private readonly funkoRepository: Repository<Funko>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(createFunkoDto: CreateFunkoDto) {
@@ -43,7 +49,9 @@ export class FunkoService {
     }
     funko.category = category
     const createdFunko = await this.funkoRepository.save(funko)
-    return this.funkoMapper.toResponse(createdFunko)
+    const response = this.funkoMapper.toResponse(createdFunko)
+    this.onChange('create', response)
+    return response
   }
 
   async findAll() {
@@ -86,13 +94,16 @@ export class FunkoService {
       }
       updatedFunko.category = category
     }
-    return this.funkoMapper.toResponse(updatedFunko)
+    const funkoResponseDto = this.funkoMapper.toResponse(updatedFunko)
+    this.onChange('update', funkoResponseDto)
+    return funkoResponseDto
   }
 
   async remove(id: number) {
     this.logger.log(`Removing funko with id ${id}`)
     const funko = await this.findOneInternal(id)
     const _ = await this.funkoRepository.remove([funko])
+    this.onChange('delete', this.funkoMapper.toResponse(funko))
   }
 
   private throwNotFound(id: Funko['id']) {
@@ -107,5 +118,9 @@ export class FunkoService {
       this.throwNotFound(id)
     }
     return funko
+  }
+
+  private onChange(type: WebSocketKey, message: FunkoResponseDto) {
+    this.notificationsGateway.sendMessage(type, message)
   }
 }

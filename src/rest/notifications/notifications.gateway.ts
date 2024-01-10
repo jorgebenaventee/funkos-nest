@@ -9,11 +9,13 @@ import { Logger } from '@nestjs/common'
 import type { FunkoResponseDto } from '@/rest/funko/dto/funko-response.dto'
 import type { CategoryResponseDto } from '@/rest/category/dto/category-response.dto'
 
-export const SOCKET_KEYS = {
+const SOCKET_KEYS = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete',
 } as const
+
+export type WebSocketKey = (typeof SOCKET_KEYS)[keyof typeof SOCKET_KEYS]
 
 @WebSocketGateway()
 export class NotificationsGateway
@@ -33,16 +35,19 @@ export class NotificationsGateway
   }
 
   sendMessage(
-    event: (typeof SOCKET_KEYS)[keyof typeof SOCKET_KEYS],
+    event: WebSocketKey,
     message: FunkoResponseDto | CategoryResponseDto,
   ) {
     const eventKey = `${event}_${this.isFunko(message) ? 'funko' : 'category'}`
+    this.logger.log(
+      `Sending message ${eventKey} with data ${JSON.stringify(message)}`,
+    )
     this.server.emit(eventKey, message)
   }
 
   private isFunko(
     message: FunkoResponseDto | CategoryResponseDto,
   ): message is FunkoResponseDto {
-    return (message as FunkoResponseDto).image !== undefined
+    return 'image' in message
   }
 }
