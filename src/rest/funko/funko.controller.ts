@@ -17,7 +17,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import type e from 'express'
 import { Response } from 'express'
 import { diskStorage } from 'multer'
 import { CreateFunkoDto } from './dto/create-funko.dto'
