@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 
 describe('CategoryController (e2e)', () => {
   let app: INestApplication
@@ -19,6 +20,17 @@ describe('CategoryController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [CategoryController],
       providers: [
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(() => Promise.resolve()),
+            set: jest.fn(() => Promise.resolve()),
+            del: jest.fn(() => Promise.resolve()),
+            store: {
+              keys: jest.fn(),
+            },
+          },
+        },
         {
           provide: CategoryService,
           useValue: createMockedService(CategoryService),

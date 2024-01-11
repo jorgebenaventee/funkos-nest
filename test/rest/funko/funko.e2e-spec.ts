@@ -6,9 +6,14 @@ import {
   type INestApplication,
   NotFoundException,
 } from '@nestjs/common'
-import { mockedResponseFunko, createFunkoDto, updateFunkoDto } from '@/mocks'
+import { createFunkoDto, mockedResponseFunko, updateFunkoDto } from '@/mocks'
 import { Test, type TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
+import { FunkoExistsGuard } from '@/rest/guards/funko-exists/funko-exists.guard'
+import { getRepositoryToken } from '@nestjs/typeorm'
+import { Funko } from '@/rest/funko/entities/funko.entity'
+import { Repository } from 'typeorm'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 
 describe('FunkoController (e2e)', () => {
   let app: INestApplication
@@ -19,6 +24,22 @@ describe('FunkoController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [FunkoController],
       providers: [
+        FunkoExistsGuard,
+        {
+          provide: getRepositoryToken(Funko),
+          useValue: Repository,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(() => Promise.resolve()),
+            set: jest.fn(() => Promise.resolve()),
+            del: jest.fn(() => Promise.resolve()),
+            store: {
+              keys: jest.fn(),
+            },
+          },
+        },
         {
           provide: FunkoService,
           useValue: createMockedService(FunkoService),
