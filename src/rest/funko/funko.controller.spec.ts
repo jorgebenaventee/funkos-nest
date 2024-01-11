@@ -1,5 +1,6 @@
 import { createFunkoDto, mockedResponseFunko, updateFunkoDto } from '@/mocks'
 import type { FunkoResponseDto } from '@/rest/funko/dto/funko-response.dto'
+import { FunkoExistsGuard } from '@/rest/guards/funko-exists/funko-exists.guard'
 import { createMockedService } from '@/utils'
 import { NotFoundException } from '@nestjs/common'
 import type { TestingModule } from '@nestjs/testing'
@@ -20,6 +21,10 @@ describe('FunkoController', () => {
         {
           provide: FunkoService,
           useValue: funkosServiceMock,
+        },
+        {
+          provide: FunkoExistsGuard,
+          useValue: createMockedService(FunkoExistsGuard),
         },
       ],
     }).compile()

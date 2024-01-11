@@ -16,8 +16,6 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { join } from 'node:path'
-import * as process from 'process'
 import { Repository } from 'typeorm'
 import type { CreateFunkoDto } from './dto/create-funko.dto'
 import type { UpdateFunkoDto } from './dto/update-funko.dto'
@@ -137,15 +135,15 @@ export class FunkoService {
     try {
       return await this.storageService.findImage({ image })
     } catch {
-      this.throwNotFound(id)
+      this.throwImageNotFound(id)
     }
   }
 
   async updateImage(id: number, file: Express.Multer.File) {
-    const funko = await this.findOneInternal(id)
     if (!file) {
       throw new BadRequestException('No file provided')
     }
+    const funko = await this.findOneInternal(id)
     if (funko.image !== defaultImage) {
       try {
         await this.storageService.removeImage({ image: funko.image })
@@ -165,6 +163,11 @@ export class FunkoService {
   private throwNotFound(id: Funko['id']) {
     this.logger.error(`Funko with id ${id} not found`)
     throw new NotFoundException(`Funko with id ${id} not found`)
+  }
+
+  private throwImageNotFound(id: Funko['id']) {
+    this.logger.error(`Image for funko with id ${id} not found`)
+    throw new NotFoundException(`Image for funko with id ${id} not found`)
   }
 
   private async findOneInternal(id: number) {
