@@ -71,7 +71,7 @@ describe('FunkoService', () => {
     categoryRepository = module.get<Repository<Category>>(
       getRepositoryToken(Category),
     )
-    mapper = module.get<FunkoMapper>(FunkoMapper)
+    mapper = await module.resolve<FunkoMapper>(FunkoMapper)
     notificationsGateway =
       module.get<NotificationsGateway>(NotificationsGateway)
     storageService = module.get<StorageService>(StorageService)

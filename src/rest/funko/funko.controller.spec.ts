@@ -7,6 +7,10 @@ import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { FunkoController } from './funko.controller'
 import { FunkoService } from './funko.service'
+import { getRepositoryToken } from '@nestjs/typeorm'
+import { Funko } from '@/rest/funko/entities/funko.entity'
+import { Repository } from 'typeorm'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 
 describe('FunkoController', () => {
   let controller: FunkoController
@@ -25,6 +29,21 @@ describe('FunkoController', () => {
         {
           provide: FunkoExistsGuard,
           useValue: createMockedService(FunkoExistsGuard),
+        },
+        {
+          provide: getRepositoryToken(Funko),
+          useValue: Repository,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(() => Promise.resolve()),
+            set: jest.fn(() => Promise.resolve()),
+            del: jest.fn(() => Promise.resolve()),
+            store: {
+              keys: jest.fn(),
+            },
+          },
         },
       ],
     }).compile()

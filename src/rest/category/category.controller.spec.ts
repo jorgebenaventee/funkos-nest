@@ -5,6 +5,7 @@ import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { CategoryController } from './category.controller'
 import { CategoryService } from './category.service'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 
 describe('CategoryController', () => {
   let controller: CategoryController
@@ -17,6 +18,17 @@ describe('CategoryController', () => {
         {
           provide: CategoryService,
           useValue: createMockedService(CategoryService),
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(() => Promise.resolve()),
+            set: jest.fn(() => Promise.resolve()),
+            del: jest.fn(() => Promise.resolve()),
+            store: {
+              keys: jest.fn(),
+            },
+          },
         },
       ],
     }).compile()

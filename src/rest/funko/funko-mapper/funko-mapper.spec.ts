@@ -2,16 +2,26 @@ import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { FunkoMapper } from './funko-mapper'
 import { funko, createFunkoDto, updateFunkoDto } from '@/mocks'
+import { REQUEST } from '@nestjs/core'
 
 describe('FunkoMapper', () => {
   let provider: FunkoMapper
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FunkoMapper],
+      providers: [
+        FunkoMapper,
+        {
+          provide: REQUEST,
+          useValue: {
+            protocol: 'http',
+            get: jest.fn(() => 'localhost:3000'),
+          },
+        },
+      ],
     }).compile()
 
-    provider = module.get<FunkoMapper>(FunkoMapper)
+    provider = await module.resolve<FunkoMapper>(FunkoMapper)
   })
 
   it('should be defined', () => {
@@ -44,7 +54,9 @@ describe('FunkoMapper', () => {
 
       expect(result.name).toBe(funko.name)
       expect(result.categoryName).toBe(funko.category.name)
-      expect(result.image).toBe(funko.image)
+      expect(result.image).toBe(
+        `http://localhost:3000/api/funko/1/${funko.image}`,
+      )
     })
   })
 })
