@@ -6,7 +6,9 @@ import {
 } from '@/mocks'
 import { CategoryMapper } from '@/rest/category/category-mapper/category-mapper'
 import { Category } from '@/rest/category/entities/category.entity'
+import { NotificationsGateway } from '@/rest/notifications/notifications.gateway'
 import { createMockedService } from '@/utils'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import {
   BadRequestException,
   ConflictException,
@@ -37,6 +39,21 @@ describe('CategoryService', () => {
         {
           provide: getRepositoryToken(Category),
           useClass: Repository,
+        },
+        {
+          provide: NotificationsGateway,
+          useValue: createMockedService(NotificationsGateway),
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(() => Promise.resolve()),
+            set: jest.fn(() => Promise.resolve()),
+            del: jest.fn(() => Promise.resolve()),
+            store: {
+              keys: jest.fn(),
+            },
+          },
         },
       ],
     }).compile()
