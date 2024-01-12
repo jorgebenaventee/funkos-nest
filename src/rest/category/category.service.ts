@@ -14,13 +14,23 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import type { Paginated } from 'nestjs-paginate'
+import {
+  FilterOperator,
+  FilterSuffix,
+  paginate,
+  type PaginateConfig,
+  type PaginateQuery,
+} from 'nestjs-paginate'
 import { Repository } from 'typeorm'
+import { hash } from 'typeorm/util/StringUtils'
 import type { CreateCategoryDto } from './dto/create-category.dto'
 import type { UpdateCategoryDto } from './dto/update-category.dto'
 
 const generateCategoryCacheKey = (id: Category['id']) =>
   `category_${id}` as const
-const allCategoriesKey = 'all_categories'
+const getAllCategoriesKey = (query: PaginateQuery) =>
+  `all_categories_page_${hash(JSON.stringify(query))}` as const
 
 @Injectable()
 export class CategoryService {
@@ -50,20 +60,33 @@ export class CategoryService {
     return response
   }
 
-  async findAll() {
-    const allCategories = await this.getFromCache()
-    if (allCategories) {
-      return allCategories.map((category) =>
+  async findAll(paginateQuery: PaginateQuery) {
+    const mapResult = (result: Paginated<Category>) => ({
+      ...result,
+      data: result.data.map((category) =>
         this.categoryMapper.fromEntityToResponseDto(category),
-      )
+      ),
+    })
+    const allCategories = await this.getFromCache(paginateQuery)
+    if (allCategories) {
+      return mapResult(allCategories)
     }
-    return await this.categoryRepository
-      .find()
-      .then((categories) =>
-        categories.map((category) =>
-          this.categoryMapper.fromEntityToResponseDto(category),
-        ),
-      )
+    const config: PaginateConfig<Category> = {
+      filterableColumns: {
+        name: [FilterOperator.EQ, FilterOperator.ILIKE, FilterSuffix.NOT],
+      },
+      sortableColumns: ['id', 'name'],
+      defaultSortBy: [['id', 'ASC']],
+      searchableColumns: ['name'],
+    }
+    const result = await paginate(
+      paginateQuery,
+      this.categoryRepository,
+      config,
+    )
+    const mappedResult = mapResult(result)
+    await this.addToCache(result, paginateQuery)
+    return mappedResult
   }
 
   async findOne(id: string) {
@@ -118,28 +141,37 @@ export class CategoryService {
     )
   }
 
-  private addToCache(item: Category | Category[]) {
-    if (Array.isArray(item)) {
-      this.logger.log(`Adding all funkos to cache`)
-      return this.cacheManager.set(allCategoriesKey, item)
-    } else {
+  private addToCache(
+    item: Category | Paginated<Category>,
+    query?: PaginateQuery,
+  ) {
+    if (this.isCategory(item)) {
       this.logger.log(`Adding funko with id ${item.id} to cache`)
       const key = generateCategoryCacheKey(item.id)
       return this.cacheManager.set(key, item)
+    } else {
+      this.logger.log(`Adding all funkos to cache`)
+      return this.cacheManager.set(getAllCategoriesKey(query), item)
     }
   }
 
-  private getFromCache(): Promise<Category[] | undefined>
+  private getFromCache(query: PaginateQuery): Promise<Paginated<Category>>
   private getFromCache(id: Category['id']): Promise<Category | undefined>
-  private getFromCache(id?: Category['id']) {
-    if (id) {
-      this.logger.log(`Getting funko with id ${id} from cache`)
-      const key = generateCategoryCacheKey(id)
-      return this.cacheManager.get<Category>(key)
+  private getFromCache(key: Category['id'] | PaginateQuery) {
+    if (typeof key === 'string') {
+      this.logger.log(`Getting category with id ${key} from cache`)
+      const cacheKey = generateCategoryCacheKey(key)
+      return this.cacheManager.get<Category>(cacheKey)
     } else {
-      this.logger.log(`Getting all funkos from cache`)
-      return this.cacheManager.get<Category[]>(allCategoriesKey)
+      this.logger.log(`Getting all categories from cache`)
+      return this.cacheManager.get<Paginated<Category>>(
+        getAllCategoriesKey(key),
+      )
     }
+  }
+
+  private isCategory(item: Category | Paginated<Category>): item is Category {
+    return 'id' in item
   }
 
   private removeFromCache(id: Category['id']) {

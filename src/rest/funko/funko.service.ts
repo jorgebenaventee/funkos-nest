@@ -16,13 +16,23 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import {
+  FilterOperator,
+  FilterSuffix,
+  paginate,
+  type PaginateConfig,
+  type Paginated,
+  type PaginateQuery,
+} from 'nestjs-paginate'
 import { Repository } from 'typeorm'
+import { hash } from 'typeorm/util/StringUtils'
 import type { CreateFunkoDto } from './dto/create-funko.dto'
 import type { UpdateFunkoDto } from './dto/update-funko.dto'
 import { defaultImage, Funko } from './entities/funko.entity'
 
 const generateFunkoCacheKey = (id: number) => `funko_${id}` as const
-const allFunkosKey = 'all_funkos'
+const getAllFunkosKey = (query: PaginateQuery) =>
+  `all_funkos_page_${hash(JSON.stringify(query))}`
 
 @Injectable()
 export class FunkoService {
@@ -64,14 +74,37 @@ export class FunkoService {
     return response
   }
 
-  async findAll() {
+  async findAll(paginateQuery: PaginateQuery) {
+    const mapResult = (result: Paginated<Funko>) => ({
+      ...result,
+      data: result.data.map((category) =>
+        this.funkoMapper.toResponse(category),
+      ),
+    })
     this.logger.log(`Finding all funkos`)
-    const cachedFunkos = await this.getFromCache()
+    const cachedFunkos = await this.getFromCache(paginateQuery)
     if (cachedFunkos) {
-      return cachedFunkos.map((funko) => this.funkoMapper.toResponse(funko))
+      return mapResult(cachedFunkos)
     }
-    const funkos = await this.funkoRepository.find()
-    return funkos.map((funko) => this.funkoMapper.toResponse(funko))
+    const config: PaginateConfig<Funko> = {
+      relations: ['category'],
+      sortableColumns: ['id', 'name', 'price', 'stock'],
+      defaultSortBy: [['id', 'ASC']],
+      filterableColumns: {
+        id: [FilterOperator.EQ, FilterSuffix.NOT],
+        name: [FilterOperator.EQ, FilterOperator.ILIKE],
+        price: [FilterOperator.EQ, FilterOperator.GT, FilterOperator.LT],
+        stock: [FilterOperator.EQ, FilterOperator.GT, FilterOperator.LT],
+        'category.name': [FilterOperator.EQ, FilterOperator.ILIKE],
+      },
+    }
+    const paginatedFunkos = await paginate(
+      paginateQuery,
+      this.funkoRepository,
+      config,
+    )
+    await this.addToCache(paginatedFunkos, paginateQuery)
+    return mapResult(paginatedFunkos)
   }
 
   async findOne(id: number) {
@@ -184,28 +217,32 @@ export class FunkoService {
     return funko
   }
 
-  private addToCache(item: Funko | Funko[]) {
-    if (Array.isArray(item)) {
-      this.logger.log(`Adding all funkos to cache`)
-      return this.cacheManager.set(allFunkosKey, item)
-    } else {
+  private addToCache(item: Funko | Paginated<Funko>, query?: PaginateQuery) {
+    if (this.isFunko(item)) {
       this.logger.log(`Adding funko with id ${item.id} to cache`)
       const key = generateFunkoCacheKey(item.id)
       return this.cacheManager.set(key, item)
+    } else {
+      this.logger.log(`Adding all funkos to cache`)
+      return this.cacheManager.set(getAllFunkosKey(query), item)
     }
   }
 
-  private getFromCache(): Promise<Funko[] | undefined>
-  private getFromCache(id: number): Promise<Funko | undefined>
-  private getFromCache(id?: number) {
-    if (id) {
-      this.logger.log(`Getting funko with id ${id} from cache`)
-      const key = generateFunkoCacheKey(id)
-      return this.cacheManager.get<Funko>(key)
+  private getFromCache(query: PaginateQuery): Promise<Paginated<Funko>>
+  private getFromCache(id: Funko['id']): Promise<Funko | undefined>
+  private getFromCache(key: number | PaginateQuery) {
+    if (typeof key === 'number') {
+      this.logger.log(`Getting funko with id ${key} from cache`)
+      const cacheKey = generateFunkoCacheKey(key)
+      return this.cacheManager.get<Funko>(cacheKey)
     } else {
       this.logger.log(`Getting all funkos from cache`)
-      return this.cacheManager.get<Funko[]>(allFunkosKey)
+      return this.cacheManager.get<Paginated<Funko>>(getAllFunkosKey(key))
     }
+  }
+
+  private isFunko(item: Funko | Paginated<Funko>): item is Funko {
+    return 'id' in item
   }
 
   private removeFromCache(id: number) {

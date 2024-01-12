@@ -15,6 +15,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
+import { query } from 'express'
 import { Repository } from 'typeorm'
 import { FunkoService } from './funko.service'
 
@@ -116,7 +117,7 @@ describe('FunkoService', () => {
     it('should return all funkos', () => {
       jest.spyOn(funkoRepository, 'find').mockResolvedValue([funko])
       jest.spyOn(mapper, 'toResponse').mockReturnValue(mockedResponseFunko)
-      expect(service.findAll()).resolves.toEqual([mockedResponseFunko])
+      expect(service.findAll(query)).resolves.toEqual([mockedResponseFunko])
     })
   })
 

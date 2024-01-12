@@ -11,6 +11,7 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common'
+import { Paginate, type PaginateQuery } from 'nestjs-paginate'
 import { CategoryService } from './category.service'
 import { CreateCategoryDto } from './dto/create-category.dto'
 import { UpdateCategoryDto } from './dto/update-category.dto'
@@ -26,8 +27,8 @@ export class CategoryController {
   }
 
   @Get()
-  async findAll() {
-    return await this.categoryService.findAll()
+  async findAll(@Paginate() query: PaginateQuery) {
+    return await this.categoryService.findAll(query)
   }
 
   @Get(':id')

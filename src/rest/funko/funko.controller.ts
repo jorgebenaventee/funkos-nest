@@ -19,6 +19,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Response } from 'express'
 import { diskStorage } from 'multer'
+import { Paginate, type PaginateQuery } from 'nestjs-paginate'
 import { CreateFunkoDto } from './dto/create-funko.dto'
 import { UpdateFunkoDto } from './dto/update-funko.dto'
 import { FunkoService } from './funko.service'
@@ -34,8 +35,8 @@ export class FunkoController {
   }
 
   @Get()
-  async findAll() {
-    return await this.funkoService.findAll()
+  async findAll(@Paginate() query: PaginateQuery) {
+    return await this.funkoService.findAll(query)
   }
 
   @Get(':id')
