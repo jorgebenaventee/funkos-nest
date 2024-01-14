@@ -1,19 +1,15 @@
 import {
   category,
   categoryResponseDto,
-  updateCategoryDto,
   createCategoryDto,
+  updateCategoryDto,
 } from '@/mocks'
 import { CategoryMapper } from '@/rest/category/category-mapper/category-mapper'
 import { Category } from '@/rest/category/entities/category.entity'
 import { NotificationsGateway } from '@/rest/notifications/notifications.gateway'
 import { createMockedService } from '@/utils'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
@@ -95,7 +91,9 @@ describe('CategoryService', () => {
       jest
         .spyOn(mapper, 'fromEntityToResponseDto')
         .mockReturnValue(categoryResponseDto)
-      expect(await service.findAll()).toEqual([categoryResponseDto])
+      expect(await service.findAll({ path: 'test' })).toStrictEqual({
+        data: [categoryResponseDto],
+      })
     })
   })
 

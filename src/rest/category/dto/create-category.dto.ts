@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator'
 import { Transform } from 'class-transformer'
+import { IsNotEmpty, IsString } from 'class-validator'
 
 export class CreateCategoryDto {
   @IsNotEmpty({ message: "Name can't be empty" })

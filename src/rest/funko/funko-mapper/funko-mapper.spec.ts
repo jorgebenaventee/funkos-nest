@@ -1,8 +1,8 @@
+import { createFunkoDto, funko, updateFunkoDto } from '@/mocks'
+import { REQUEST } from '@nestjs/core'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { FunkoMapper } from './funko-mapper'
-import { funko, createFunkoDto, updateFunkoDto } from '@/mocks'
-import { REQUEST } from '@nestjs/core'
 
 describe('FunkoMapper', () => {
   let provider: FunkoMapper

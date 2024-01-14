@@ -1,16 +1,17 @@
 import { createFunkoDto, mockedResponseFunko, updateFunkoDto } from '@/mocks'
 import type { FunkoResponseDto } from '@/rest/funko/dto/funko-response.dto'
+import { Funko } from '@/rest/funko/entities/funko.entity'
 import { FunkoExistsGuard } from '@/rest/guards/funko-exists/funko-exists.guard'
 import { createMockedService } from '@/utils'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { NotFoundException } from '@nestjs/common'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import { getRepositoryToken } from '@nestjs/typeorm'
+import type { Paginated } from 'nestjs-paginate'
+import { Repository } from 'typeorm'
 import { FunkoController } from './funko.controller'
 import { FunkoService } from './funko.service'
-import { getRepositoryToken } from '@nestjs/typeorm'
-import { Funko } from '@/rest/funko/entities/funko.entity'
-import { Repository } from 'typeorm'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
 
 describe('FunkoController', () => {
   let controller: FunkoController
@@ -59,8 +60,13 @@ describe('FunkoController', () => {
   describe('findAll', () => {
     it('should return an array of funkos', async () => {
       const result: FunkoResponseDto[] = [mockedResponseFunko]
-      jest.spyOn(service, 'findAll').mockResolvedValue(result)
-      expect(await controller.findAll()).toBe(result)
+      // @ts-ignore
+      jest.spyOn(service, 'findAll').mockResolvedValue({
+        data: result,
+      } as unknown as Paginated<FunkoResponseDto>)
+      expect(await controller.findAll({ path: 'test' })).toStrictEqual({
+        data: result,
+      })
     })
   })
 

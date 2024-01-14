@@ -1,11 +1,13 @@
 import { categoryResponseDto, createCategoryDto } from '@/mocks'
+import type { CategoryResponseDto } from '@/rest/category/dto/category-response.dto'
 import { createMockedService } from '@/utils'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConflictException, NotFoundException } from '@nestjs/common'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
+import type { Paginated } from 'nestjs-paginate'
 import { CategoryController } from './category.controller'
 import { CategoryService } from './category.service'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
 
 describe('CategoryController', () => {
   let controller: CategoryController
@@ -61,9 +63,13 @@ describe('CategoryController', () => {
 
   describe('findAll', () => {
     it('should return an array of categories', async () => {
-      jest.spyOn(service, 'findAll').mockResolvedValue([categoryResponseDto])
+      jest.spyOn(service, 'findAll').mockResolvedValue({
+        data: [categoryResponseDto],
+      } as unknown as Paginated<CategoryResponseDto>)
 
-      expect(await controller.findAll()).toEqual([categoryResponseDto])
+      expect(await controller.findAll({ path: 'test' })).toStrictEqual({
+        data: [categoryResponseDto],
+      })
     })
   })
 

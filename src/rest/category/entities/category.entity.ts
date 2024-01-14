@@ -1,3 +1,4 @@
+import { Funko } from '@/rest/funko/entities/funko.entity'
 import {
   Column,
   DeleteDateColumn,
@@ -5,7 +6,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import { Funko } from '@/rest/funko/entities/funko.entity'
 
 @Entity('categories')
 export class Category {

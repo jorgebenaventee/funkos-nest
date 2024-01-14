@@ -1,6 +1,6 @@
 import { Funko } from '@/rest/funko/entities/funko.entity'
-import { Injectable, NotFoundException } from '@nestjs/common'
 import type { CanActivate, ExecutionContext } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 

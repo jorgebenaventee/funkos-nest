@@ -1,3 +1,6 @@
+import type { CategoryResponseDto } from '@/rest/category/dto/category-response.dto'
+import type { FunkoResponseDto } from '@/rest/funko/dto/funko-response.dto'
+import { Logger } from '@nestjs/common'
 import {
   type OnGatewayConnection,
   type OnGatewayDisconnect,
@@ -5,9 +8,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server, type Socket } from 'socket.io'
-import { Logger } from '@nestjs/common'
-import type { FunkoResponseDto } from '@/rest/funko/dto/funko-response.dto'
-import type { CategoryResponseDto } from '@/rest/category/dto/category-response.dto'
 
 const SOCKET_KEYS = {
   CREATE: 'create',

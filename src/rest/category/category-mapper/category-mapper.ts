@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common'
-import type { CreateCategoryDto } from '@/rest/category/dto/create-category.dto'
-import type { Category } from '@/rest/category/entities/category.entity'
-import type { UpdateCategoryDto } from '@/rest/category/dto/update-category.dto'
 import type { CategoryResponseDto } from '@/rest/category/dto/category-response.dto'
+import type { CreateCategoryDto } from '@/rest/category/dto/create-category.dto'
+import type { UpdateCategoryDto } from '@/rest/category/dto/update-category.dto'
+import type { Category } from '@/rest/category/entities/category.entity'
+import { Injectable } from '@nestjs/common'
 
 type CategoryEntity = Omit<Category, 'id' | 'deletedAt' | 'funkos'>
 
