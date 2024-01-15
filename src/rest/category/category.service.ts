@@ -61,12 +61,17 @@ export class CategoryService {
   }
 
   async findAll(paginateQuery: PaginateQuery) {
-    const mapResult = (result: Paginated<Category>) => ({
-      ...result,
-      data: result.data.map((category) =>
-        this.categoryMapper.fromEntityToResponseDto(category),
-      ),
-    })
+    const mapResult = (result: Paginated<Category>) => {
+      if (!Array.isArray(result.data)) {
+        result.data = [result.data]
+      }
+      return {
+        ...result,
+        data: result.data.map((category) =>
+          this.categoryMapper.fromEntityToResponseDto(category),
+        ),
+      }
+    }
     const allCategories = await this.getFromCache(paginateQuery)
     if (allCategories) {
       return mapResult(allCategories)

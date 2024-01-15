@@ -25,6 +25,13 @@ describe('FunkoService', () => {
   let mapper: FunkoMapper
   let notificationsGateway: NotificationsGateway
   let storageService: StorageService
+  const mockQueryBuilder = {
+    take: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    addOrderBy: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn().mockResolvedValue([funko, 1]),
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+  }
 
   const funkoMapperMock = createMockedService(FunkoMapper)
 
@@ -113,12 +120,17 @@ describe('FunkoService', () => {
   })
 
   describe('findAll', () => {
-    it('should return all funkos', () => {
-      jest.spyOn(funkoRepository, 'find').mockResolvedValue([funko])
+    it('should return all funkos', async () => {
+      jest
+        .spyOn(funkoRepository, 'find')
+        .mockResolvedValue({ data: [funko] } as any)
+      jest
+        .spyOn(funkoRepository, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any)
       jest.spyOn(mapper, 'toResponse').mockReturnValue(mockedResponseFunko)
-      expect(service.findAll({ path: 'test' })).resolves.toStrictEqual({
-        data: [mockedResponseFunko],
-      })
+      expect((await service.findAll({ path: 'test' })).data).toStrictEqual([
+        mockedResponseFunko,
+      ])
     })
   })
 

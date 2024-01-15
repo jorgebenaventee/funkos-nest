@@ -23,7 +23,13 @@ describe('CategoryService', () => {
   let categoryRepository: Repository<Category>
 
   const categoryMapperMock = createMockedService(CategoryMapper)
-
+  const mockQueryBuilder = {
+    take: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    addOrderBy: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn().mockResolvedValue([category, 1]),
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+  }
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -87,13 +93,18 @@ describe('CategoryService', () => {
 
   describe('findAll', () => {
     it('should return all categories', async () => {
-      jest.spyOn(categoryRepository, 'find').mockResolvedValue([category])
+      jest
+        .spyOn(categoryRepository, 'createQueryBuilder')
+        .mockReturnValue(mockQueryBuilder as any)
+      jest
+        .spyOn(categoryRepository, 'find')
+        .mockResolvedValue({ data: [category] } as any)
       jest
         .spyOn(mapper, 'fromEntityToResponseDto')
         .mockReturnValue(categoryResponseDto)
-      expect(await service.findAll({ path: 'test' })).toStrictEqual({
-        data: [categoryResponseDto],
-      })
+      expect((await service.findAll({ path: 'test' })).data).toStrictEqual([
+        categoryResponseDto,
+      ])
     })
   })
 

@@ -75,12 +75,17 @@ export class FunkoService {
   }
 
   async findAll(paginateQuery: PaginateQuery) {
-    const mapResult = (result: Paginated<Funko>) => ({
-      ...result,
-      data: result.data.map((category) =>
-        this.funkoMapper.toResponse(category),
-      ),
-    })
+    const mapResult = (result: Paginated<Funko>) => {
+      if (!Array.isArray(result.data)) {
+        result.data = [result.data]
+      }
+      return {
+        ...result,
+        data: result.data.map((category) =>
+          this.funkoMapper.toResponse(category),
+        ),
+      }
+    }
     this.logger.log(`Finding all funkos`)
     const cachedFunkos = await this.getFromCache(paginateQuery)
     if (cachedFunkos) {

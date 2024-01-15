@@ -16,6 +16,9 @@ export class Category {
   @DeleteDateColumn()
   deletedAt: Date
 
-  @OneToMany(() => Funko, (object) => object.category)
+  @OneToMany(() => Funko, (object) => object.category, {
+    lazy: true,
+    eager: false,
+  })
   funkos: Funko[]
 }
