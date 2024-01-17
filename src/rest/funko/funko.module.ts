@@ -4,6 +4,9 @@ import { NotificationsGateway } from '@/rest/notifications/notifications.gateway
 import { NotificationsModule } from '@/rest/notifications/notifications.module'
 import { StorageModule } from '@/rest/storage/storage.module'
 import { StorageService } from '@/rest/storage/storage.service'
+import { Role, User } from '@/rest/user/entities/user.entity'
+import { UserModule } from '@/rest/user/user.module'
+import { UserService } from '@/rest/user/user.service'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -14,11 +17,18 @@ import { FunkoService } from './funko.service'
 @Module({
   imports: [
     CacheModule.register(),
-    TypeOrmModule.forFeature([Funko, Category]),
+    TypeOrmModule.forFeature([Funko, Category, User, Role]),
     NotificationsModule,
     StorageModule,
+    UserModule,
   ],
   controllers: [FunkoController],
-  providers: [FunkoService, FunkoMapper, NotificationsGateway, StorageService],
+  providers: [
+    FunkoService,
+    FunkoMapper,
+    NotificationsGateway,
+    StorageService,
+    UserService,
+  ],
 })
 export class FunkoModule {}

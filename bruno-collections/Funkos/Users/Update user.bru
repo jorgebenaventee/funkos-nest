@@ -1,0 +1,25 @@
+meta {
+  name: Update user
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:3000/api/user/2
+  body: json
+  auth: none
+}
+
+auth:bearer {
+  token: 
+}
+
+body:json {
+  {
+    "roles": ["ADMIN"]
+  }
+}
+
+vars:post-response {
+  token: res.body.accessToken
+}

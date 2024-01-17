@@ -1,0 +1,22 @@
+meta {
+  name: SIgn Up
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/api/auth/sign-in
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "Admin",
+    "password": "admin"
+  }
+}
+
+vars:post-response {
+  token: res.body.accessToken
+}

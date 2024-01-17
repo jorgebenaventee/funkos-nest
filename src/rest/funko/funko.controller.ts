@@ -1,3 +1,5 @@
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
+import { Roles, RolesAuthGuard } from '@/auth/roles-auth.guard'
 import { FunkoExistsGuard } from '@/rest/guards/funko-exists/funko-exists.guard'
 import { CustomCacheInterceptor } from '@/rest/interceptors/custom-cache-interceptor/custom-cache.interceptor'
 import { NoCache } from '@/rest/interceptors/custom-cache-interceptor/no-cache/no-cache.decorator'
@@ -30,6 +32,8 @@ export class FunkoController {
   constructor(private readonly funkoService: FunkoService) {}
 
   @Post()
+  @UseGuards(FunkoExistsGuard, JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   async create(@Body() createFunkoDto: CreateFunkoDto) {
     return await this.funkoService.create(createFunkoDto)
   }
@@ -60,7 +64,8 @@ export class FunkoController {
   }
 
   @Post(':id/image')
-  @UseGuards(FunkoExistsGuard)
+  @UseGuards(FunkoExistsGuard, JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -96,6 +101,8 @@ export class FunkoController {
   }
 
   @Put(':id')
+  @UseGuards(FunkoExistsGuard, JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   async update(
     @Param('id', new ParseIntPipe()) id: string,
     @Body() updateFunkoDto: UpdateFunkoDto,
@@ -104,6 +111,8 @@ export class FunkoController {
   }
 
   @Delete(':id')
+  @UseGuards(FunkoExistsGuard, JwtAuthGuard, RolesAuthGuard)
+  @Roles('ADMIN')
   async remove(@Param('id', new ParseIntPipe()) id: string) {
     return await this.funkoService.remove(+id)
   }
