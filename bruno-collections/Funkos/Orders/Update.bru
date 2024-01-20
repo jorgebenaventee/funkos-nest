@@ -1,0 +1,44 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:3000/api/order/65ac399cdbfcfa505a6ffa94
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "userId": 1,
+    "client": {
+      "name": ":D",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "address": {
+        "street": "123 Main St",
+        "city": "Cityville",
+        "zip": "12345"
+      }
+    },
+    "orderLines": [
+      {
+        "funkoId": 6,
+        "quantity": 2,
+        "price": 2.02,
+        "total": 4.04
+      },
+      {
+        "funkoId": 7,
+        "quantity": 1,
+        "price": 2.02,
+        "total": 2.02
+      }
+    ],
+    "totalItems": 3,
+    "total": 8.08
+  }
+  
+}

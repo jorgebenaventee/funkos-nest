@@ -42,9 +42,8 @@ export class OrderLine {
 
 @Entity({ name: 'orders' })
 export class Order {
-  @ObjectIdColumn()
-  id: ObjectId
-
+  @ObjectIdColumn({ name: '_id' })
+  _id: ObjectId
   @Column()
   userId: number
   @Column(() => Client)

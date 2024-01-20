@@ -30,5 +30,6 @@ import { FunkoService } from './funko.service'
     StorageService,
     UserService,
   ],
+  exports: [TypeOrmModule],
 })
 export class FunkoModule {}
