@@ -20,7 +20,7 @@ export class RolesAuthGuard implements CanActivate {
       return true
     }
     const request = context.switchToHttp().getRequest()
-    const user = await this.userService.find(request.user.userId)
+    const user = await this.userService.find(request.user.id)
     if (!user) {
       return false
     }

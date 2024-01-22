@@ -5,15 +5,16 @@ meta {
 }
 
 post {
-  url: http://localhost:3000/api/auth/sign-in
+  url: https://localhost:3000/api/auth/sign-up
   body: json
   auth: none
 }
 
 body:json {
   {
-    "username": "User2",
-    "password": "user"
+    "username": "admin",
+    "password": "admin",
+    "confirmPassword": "admin"
   }
 }
 

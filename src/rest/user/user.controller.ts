@@ -31,6 +31,12 @@ export class UserController {
     return request.user
   }
 
+  @Get()
+  @Roles('ADMIN')
+  async findAll() {
+    return await this.userService.findAll()
+  }
+
   @Post()
   @Roles('ADMIN')
   async create(@Body() user: CreateUserDto) {

@@ -119,4 +119,11 @@ export class UserService {
   ): data is CreateUserDto {
     return 'roles' in data
   }
+
+  async findAll() {
+    const users = await this.userRepository.find({
+      relations: ['roles'],
+    })
+    return users.map(this.userMapper.toResponse)
+  }
 }

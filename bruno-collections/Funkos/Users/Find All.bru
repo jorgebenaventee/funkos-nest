@@ -1,11 +1,11 @@
 meta {
-  name: Update user
+  name: Find All
   type: http
-  seq: 4
+  seq: 2
 }
 
-put {
-  url: https://localhost:3000/api/user/2
+get {
+  url: https://localhost:3000/api/user
   body: json
   auth: none
 }
@@ -16,7 +16,9 @@ auth:bearer {
 
 body:json {
   {
-    "roles": ["ADMIN"]
+    "username": "User",
+    "password": "user",
+    "confirmPassword": "user"
   }
 }
 
