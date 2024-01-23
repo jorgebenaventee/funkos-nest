@@ -12,6 +12,8 @@ import type { Paginated } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 import { FunkoController } from './funko.controller'
 import { FunkoService } from './funko.service'
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
+import { RolesAuthGuard } from '@/auth/roles-auth.guard'
 
 describe('FunkoController', () => {
   let controller: FunkoController
@@ -47,7 +49,12 @@ describe('FunkoController', () => {
           },
         },
       ],
-    }).compile()
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue(() => true)
+      .overrideGuard(RolesAuthGuard)
+      .useValue(() => true)
+      .compile()
 
     controller = module.get<FunkoController>(FunkoController)
     service = module.get<FunkoService>(FunkoService)

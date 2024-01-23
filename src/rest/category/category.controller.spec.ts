@@ -8,6 +8,8 @@ import { Test } from '@nestjs/testing'
 import type { Paginated } from 'nestjs-paginate'
 import { CategoryController } from './category.controller'
 import { CategoryService } from './category.service'
+import { RolesAuthGuard } from '@/auth/roles-auth.guard'
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
 
 describe('CategoryController', () => {
   let controller: CategoryController
@@ -33,7 +35,12 @@ describe('CategoryController', () => {
           },
         },
       ],
-    }).compile()
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue(() => true)
+      .overrideGuard(RolesAuthGuard)
+      .useValue(() => true)
+      .compile()
 
     controller = module.get<CategoryController>(CategoryController)
     service = module.get<CategoryService>(CategoryService)
