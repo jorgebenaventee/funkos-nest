@@ -16,6 +16,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { REQUEST } from '@nestjs/core'
+import { ApiExcludeController } from '@nestjs/swagger'
 import { Request } from 'express'
 import { ObjectId } from 'mongodb'
 import { CreateOrderDto } from './dto/create-order.dto'
@@ -25,6 +26,7 @@ import { OrderService } from './order.service'
 @Controller('order')
 @UseGuards(JwtAuthGuard)
 @Roles('USER')
+@ApiExcludeController()
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,

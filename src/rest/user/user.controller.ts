@@ -17,9 +17,11 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common'
+import { ApiExcludeController } from '@nestjs/swagger'
 
 @Controller('user')
 @UseGuards(JwtAuthGuard, RolesAuthGuard)
+@ApiExcludeController()
 export class UserController {
   private readonly logger = new Logger(UserController.name)
 

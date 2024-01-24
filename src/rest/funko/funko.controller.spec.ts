@@ -1,3 +1,5 @@
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
+import { RolesAuthGuard } from '@/auth/roles-auth.guard'
 import { createFunkoDto, mockedResponseFunko, updateFunkoDto } from '@/mocks'
 import type { FunkoResponseDto } from '@/rest/funko/dto/funko-response.dto'
 import { Funko } from '@/rest/funko/entities/funko.entity'
@@ -12,8 +14,6 @@ import type { Paginated } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 import { FunkoController } from './funko.controller'
 import { FunkoService } from './funko.service'
-import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
-import { RolesAuthGuard } from '@/auth/roles-auth.guard'
 
 describe('FunkoController', () => {
   let controller: FunkoController

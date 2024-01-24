@@ -5,12 +5,11 @@ meta {
 }
 
 get {
-  url: https://localhost:3000/api/funko?sortBy=price:DESC
+  url: https://localhost:3000/api/funko
   body: none
   auth: none
 }
 
 query {
-  sortBy: price:DESC
   ~filter.name: $eq:Funko
 }

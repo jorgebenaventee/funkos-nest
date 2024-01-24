@@ -31,14 +31,14 @@ export class AuthService {
     return this.generateAccessToken(user)
   }
 
+  async signUp(signUpRequest: SignUpRequest) {
+    await this.userService.create(signUpRequest)
+  }
+
   private generateAccessToken({ id }: User) {
     this.logger.log(`Generating access token`)
     const payload = { id }
     const accessToken = this.jwtService.sign(payload)
     return { accessToken }
-  }
-
-  async signUp(signUpRequest: SignUpRequest) {
-    await this.userService.create(signUpRequest)
   }
 }

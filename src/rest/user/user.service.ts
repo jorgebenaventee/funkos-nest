@@ -114,16 +114,16 @@ export class UserService {
     })
   }
 
-  private isAdminCreate(
-    data: CreateUserDto | SignUpRequest,
-  ): data is CreateUserDto {
-    return 'roles' in data
-  }
-
   async findAll() {
     const users = await this.userRepository.find({
       relations: ['roles'],
     })
     return users.map(this.userMapper.toResponse)
+  }
+
+  private isAdminCreate(
+    data: CreateUserDto | SignUpRequest,
+  ): data is CreateUserDto {
+    return 'roles' in data
   }
 }

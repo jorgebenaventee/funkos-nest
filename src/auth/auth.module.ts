@@ -1,5 +1,4 @@
 import { JwtAuthStrategy } from '@/auth/jwt.strategy'
-import { UserMapper } from '@/rest/user/user.mapper'
 import { UserModule } from '@/rest/user/user.module'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -10,7 +9,9 @@ import { AuthService } from './auth.service'
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env' : '.env.prod',
+    }),
     JwtModule.register({
       secret: btoa(process.env.JWT_SECRET),
       signOptions: {

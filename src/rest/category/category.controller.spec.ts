@@ -1,3 +1,5 @@
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
+import { RolesAuthGuard } from '@/auth/roles-auth.guard'
 import { categoryResponseDto, createCategoryDto } from '@/mocks'
 import type { CategoryResponseDto } from '@/rest/category/dto/category-response.dto'
 import { createMockedService } from '@/utils'
@@ -8,8 +10,6 @@ import { Test } from '@nestjs/testing'
 import type { Paginated } from 'nestjs-paginate'
 import { CategoryController } from './category.controller'
 import { CategoryService } from './category.service'
-import { RolesAuthGuard } from '@/auth/roles-auth.guard'
-import { JwtAuthGuard } from '@/auth/jwt-auth.guard'
 
 describe('CategoryController', () => {
   let controller: CategoryController
