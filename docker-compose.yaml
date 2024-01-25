@@ -11,7 +11,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./uploads:/app/uploads
+      - uploads:/app/uploads
       - ./cert:/app/cert
   db:
     image: postgres:16.1-alpine
@@ -40,3 +40,6 @@ services:
     volumes:
       - ./funkos-mongo/data:/data/db
       - ./funkos-mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
+
+volumes:
+   uploads:
